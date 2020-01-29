@@ -144,8 +144,9 @@ function view() {
             choices: ["Departments", "Roles", "Employees"]
         })
         .then(function (response) {
-            console.log(response.toView)
-            start();
+            if (response.toView === "Employees") {
+                getAllEmployees();
+            }
         })
     // View departments, roles, employees
 }
@@ -153,4 +154,39 @@ function view() {
 function update() {
     console.log("Time to update!");
     start();
+}
+
+function getAllEmployees() {
+    var query =
+        `SELECT 
+        employee.id,
+        employee.first_name, 
+        employee.last_name, 
+        employee_role.title, 
+        department.dept_name, 
+        employee_role.salary
+    FROM 
+        employee
+    INNER JOIN 
+        employee_role ON employee.role_id = employee_role.id OR employee.manager_id=employee_role.id
+    INNER JOIN 
+        department ON employee_role.dept_id = department.id
+    ORDER BY
+        employee.id
+    ASC;`
+
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        for (var i = 0; i < res.length; i++) {
+            let employeeData = {
+                id: res[i].id,
+                first_name: res[i].first_name,
+                last_name: res[i].last_name,
+                title: res[i].title,
+                dept_name: res[i].dept_name,
+                salary: res[i].salary
+            }
+            console.table([employeeData]);
+        }
+    })
 }
