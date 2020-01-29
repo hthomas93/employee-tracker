@@ -4,38 +4,40 @@ CREATE database employee_tracker_db;
 USE employee_tracker_db;
 
 CREATE TABLE department (
-    id INT NOT NULL,
-    name VARCHAR(30) NOT NULL,
-    PRIMARY KEY(id)
+    dept_id INT AUTO_INCREMENT NOT NULL,
+    dept_name VARCHAR(30) NOT NULL,
+    PRIMARY KEY(dept_id)
 );
 
 CREATE TABLE employee_role (
-    id INT NOT NULL,
+    role_id INT AUTO_INCREMENT NOT NULL,
     title VARCHAR(30) NOT NULL,
-    salary DECIMAL(10) NOT NULL,
-    department_id INT NOT NULL,
-    PRIMARY KEY(id)
+    salary INT NULL,
+    dept_id INT NULL,
+    PRIMARY KEY(role_id)
 );
 
 CREATE TABLE employee (
-    id INT NOT NULL,
+    id INT AUTO_INCREMENT NOT NULL,
     first_name VARCHAR(30),
     last_name VARCHAR(30),
     role_id INT NOT NULL,
-    manager_id INT NOT NULL,
+    manager_id INT NULL,
 	PRIMARY KEY(id)
 );
 
-INSERT INTO employee (id,first_name, last_name, role_id, manager_id)
-VALUES (1,"Robert", "Frost", 32, 64);
+INSERT INTO employee (id, first_name, last_name, role_id, manager_id)
+VALUES (1, "Robert", "Frost", 32, 64);
 
-INSERT INTO employee_role (id, title, salary, department_id)
-VALUES (1, "Boss", 500000, 10);
+INSERT INTO employee_role (role_id, title, salary, dept_id)
+VALUES (32, "Boss", 500000, 10);
 
-INSERT INTO department (id, name)
-VALUES (1, "Management");
+INSERT INTO department (dept_id, dept_name)
+VALUES (10, "Management");
 
-SELECT * FROM employee;
-SELECT * FROM employee_role;
-SELECT * FROM department;
+SELECT employee.id, employee.first_name, employee.last_name, employee.manager_id, employee_role.title, employee_role.salary, employee_role.dept_id
+FROM employee 
+INNER JOIN employee_role 
+ON employee.role_id = employee_role.role_id;
+
 
