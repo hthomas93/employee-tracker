@@ -93,6 +93,7 @@ function add() {
                         }
                     ])
                     .then(function (answer) {
+                        roles.push(answer.roletitle);
                         var query = connection.query("INSERT INTO employee_role (title, salary, dept_id) VALUES (?, ?, ?)", [answer.roletitle, answer.salaryset, answer.dept],
                             function (err) {
                                 if (err) throw err;
@@ -155,7 +156,6 @@ function view() {
                 getDepartments();
             }
         })
-    // View departments, roles, employees
 }
 
 function update() {
@@ -167,30 +167,24 @@ function update() {
                 name: "toUpdate",
                 type: "list",
                 message: "Which employee roles would you like to update?",
-                choices: [res.data]
+                choices: roles
             })
-    }).then(departments => {
+    }).then(choice =>
         inquirer
-            .prompt([
-                {
-                    name: "updateName",
+            .prompt(
+                [{
                     type: "input",
-                    message: "Input a new name for this role!"
-                },
-                {
-                    name: "updateSal",
-                    type: "input",
-                    message: "What is this position's salary?"
-                },
-                {
-                    name: "updateDept",
-                    type: "input",
-                    message: "What is this position's department?"
-                }
-            ])
+                    name: "rename_department",
+                    message: "Input a new name for this department",
+                }])
+    ).
+    .then(role =>
+        connection.query(
+            "INSERT INTO roles (name) VALUES ?", role.toUpdate
+        )
     })
-    console.log("Time to update!");
-    start();
+console.log("Time to update!");
+start();
 }
 
 // This function will return all of the employees in a data table
