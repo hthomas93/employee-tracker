@@ -13,7 +13,7 @@ CREATE TABLE employee_role (
     id INT AUTO_INCREMENT NOT NULL,
     title VARCHAR(30) NOT NULL,
     salary INT NULL,
-    dept_id INT NULL,
+    dept_id INT NOT NULL,
     PRIMARY KEY(id)
 );
 
@@ -27,7 +27,7 @@ CREATE TABLE employee (
 );
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Robert", "Frost", 32, 1);
+VALUES ("Robert", "Frost", 1, 1);
 
 INSERT INTO employee_role (title, salary, dept_id)
 VALUES ("Boss", 500000, 1);
@@ -35,9 +35,10 @@ VALUES ("Boss", 500000, 1);
 INSERT INTO department (dept_name)
 VALUES ("Management");
 
+
 SELECT employee.id, employee.first_name, employee.last_name, employee.manager_id, employee_role.title, employee_role.salary, employee_role.dept_id
 FROM employee 
 INNER JOIN employee_role 
-ON employee.role_id = employee_role.role_id;
+ON employee.role_id = employee_role.id;
 
 

@@ -146,16 +146,51 @@ function view() {
         .then(function (response) {
             if (response.toView === "Employees") {
                 getAllEmployees();
+            } else if (response.toView === "Roles") {
+                getRoles();
+            } else if (response.toView === "Departments") {
+                getDepartments();
             }
         })
     // View departments, roles, employees
 }
 
 function update() {
+    var query = 'SELECT employee_role.title FROM employee_role'
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        inquirer
+            .prompt({
+                name: "toUpdate",
+                type: "list",
+                message: "Which employee roles would you like to update?",
+                choices: [res.data]
+            })
+    }).then(departments => {
+        inquirer
+            .prompt([
+                {
+                    name: "updateName",
+                    type: "input",
+                    message: "Input a new name for this role!"
+                },
+                {
+                    name: "updateSal",
+                    type: "input",
+                    message: "What is this position's salary?"
+                },
+                {
+                    name: "updateDept",
+                    type: "input",
+                    message: "What is this position's department?"
+                }
+            ])
+    })
     console.log("Time to update!");
     start();
 }
 
+// This function will return all of the employees in a data table
 function getAllEmployees() {
     var query =
         `SELECT 
@@ -177,16 +212,25 @@ function getAllEmployees() {
 
     connection.query(query, function (err, res) {
         if (err) throw err;
-        for (var i = 0; i < res.length; i++) {
-            let employeeData = {
-                id: res[i].id,
-                first_name: res[i].first_name,
-                last_name: res[i].last_name,
-                title: res[i].title,
-                dept_name: res[i].dept_name,
-                salary: res[i].salary
-            }
-            console.table([employeeData]);
-        }
+        console.table(res);
+        start();
+    })
+}
+
+function getRoles() {
+    var query = `SELECT * FROM employee_role`;
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        console.table(res);
+        start();
+    })
+}
+
+function getDepartments() {
+    var query = `SELECT * FROM department`;
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        console.table(res);
+        start();
     })
 }
