@@ -11,6 +11,10 @@ const connection = mysql.createConnection({
     password: process.env.DB_PASSWORD
 })
 
+var roles = [];
+var employees = [];
+var departments = ["Management", "Staff"];
+
 connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadID);
@@ -59,6 +63,7 @@ function add() {
                         message: "What would you like to name the department?"
                     })
                     .then(function (answer) {
+                        departments.push(answer.deptname);
                         connection.query("INSERT INTO department SET ?", { dept_name: answer.deptname }, function (err) {
                             if (err) throw err;
                             console.log("New department added");
@@ -82,17 +87,13 @@ function add() {
                             message: "How much does this role pay?"
                         },
                         {
-                            name: "deptid",
+                            name: "dept",
                             type: "prompt",
                             message: "What is this role's department ID?"
                         }
                     ])
                     .then(function (answer) {
-                        connection.query("INSERT INTO employee_role SET ?",
-                            [{ title: answer.roletitle },
-                            { salary: parseInt(answer.salaryset) },
-                            { dept_id: parseInt(answer.deptid) }
-                            ],
+                        var query = connection.query("INSERT INTO employee_role (title, salary, dept_id) VALUES (?, ?, ?)", [answer.roletitle, answer.salaryset, answer.dept],
                             function (err) {
                                 if (err) throw err;
                                 console.log("New role added");
@@ -118,19 +119,21 @@ function add() {
                             name: "role",
                             type: "list",
                             message: "What is the employee's role?",
-                            choices: [
-                                // for each role in the database, populate the choices
-                            ]
+                            choices: roles
                         },
                         {
                             name: "manager",
-                            type: "list",
-                            message: "Who is the employee's manager?",
-                            choices: [
-                                // list all of the employees in the database
-                            ]
+                            type: "prompt",
+                            message: "Who is the employee's manager?"
                         }
                     ])
+                    .then(function (response) {
+                        let name = "";
+                        let fullname = name.concat(response.first + " " + response.last);
+                        employees.push(fullname);
+                        console.log(fullname);
+                        start();
+                    })
             }
         })
 }
@@ -213,7 +216,6 @@ function getAllEmployees() {
     connection.query(query, function (err, res) {
         if (err) throw err;
         console.table(res);
-        start();
     })
 }
 
@@ -222,7 +224,6 @@ function getRoles() {
     connection.query(query, function (err, res) {
         if (err) throw err;
         console.table(res);
-        start();
     })
 }
 
@@ -230,7 +231,5 @@ function getDepartments() {
     var query = `SELECT * FROM department`;
     connection.query(query, function (err, res) {
         if (err) throw err;
-        console.table(res);
-        start();
     })
 }

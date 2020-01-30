@@ -19,8 +19,8 @@ CREATE TABLE employee_role (
 
 CREATE TABLE employee (
     id INT AUTO_INCREMENT NOT NULL,
-    first_name VARCHAR(30),
-    last_name VARCHAR(30),
+    first_name VARCHAR(30) NOT NULL,
+    last_name VARCHAR(30) NOT NULL,
     role_id INT NOT NULL,
     manager_id INT NULL,
 	PRIMARY KEY(id)
@@ -34,6 +34,9 @@ VALUES ("Boss", 500000, 1);
 
 INSERT INTO department (dept_name)
 VALUES ("Management");
+
+INSERT INTO department (dept_name)
+VALUES ("Staff");
 
 
 SELECT employee.id, employee.first_name, employee.last_name, employee.manager_id, employee_role.title, employee_role.salary, employee_role.dept_id
