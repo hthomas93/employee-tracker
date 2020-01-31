@@ -184,7 +184,7 @@ function update() {
                         .then(data => {
                             console.log("Updating" + data.toUpdate + "role...\n");
                             connection.query(
-                                "INSERT INTO employee_role (title) VALUES (?)", data.title,
+                                "UPDATE employee_role SET title WHERE (?)", data.title,
                                 function (err, res) {
                                     if (err) throw err;
                                     console.log("role updated!\n")
