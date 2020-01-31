@@ -160,32 +160,49 @@ function view() {
 
 function update() {
     var query = 'SELECT employee_role.title FROM employee_role'
-    connection.query(query, function (err, res) {
-        if (err) throw err;
-        inquirer
-            .prompt({
-                name: "toUpdate",
-                type: "list",
-                message: "Which employee roles would you like to update?",
-                choices: roles
-            })
-    }).then(choice =>
-        inquirer
-            .prompt(
-                [{
-                    type: "input",
-                    name: "rename_department",
-                    message: "Input a new name for this department",
-                }])
-    ).
-    .then(role =>
-        connection.query(
-            "INSERT INTO roles (name) VALUES ?", role.toUpdate
-        )
-    })
-console.log("Time to update!");
-start();
-}
+    console.log(roles);
+    if (roles.length <= 0) {
+        console.log("No roles to update!")
+        start();
+    } else {
+        connection.query(query, function (err, res) {
+            if (err) throw err;
+            inquirer
+                .prompt({
+                    name: "toUpdate",
+                    type: "list",
+                    message: "Which employee roles would you like to update?",
+                    choices: roles
+                })
+                .then(function () {
+                    inquirer
+                        .prompt({
+                            type: "input",
+                            name: "title",
+                            message: "What name would you like to change the role to?"
+                        })
+                        .then(data => {
+                            console.log("Updating" + data.toUpdate + "role...\n");
+                            connection.query(
+                                "INSERT INTO employee_role (title) VALUES (?)", data.title,
+                                function (err, res) {
+                                    if (err) throw err;
+                                    console.log("role updated!\n")
+                                    connection.query("SELECT * FROM roles", function (err, db_data) {
+                                        console.table(db_data)
+                                        updateInfo()
+                                    })
+                                })
+                        });
+
+                });
+        })
+    }
+};
+
+
+
+
 
 // This function will return all of the employees in a data table
 function getAllEmployees() {
