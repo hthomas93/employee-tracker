@@ -26,22 +26,5 @@ CREATE TABLE employee (
 	PRIMARY KEY(id)
 );
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Robert", "Frost", 1, 1);
-
-INSERT INTO employee_role (title, salary, dept_id)
-VALUES ("Boss", 500000, 1);
-
-INSERT INTO department (dept_name)
-VALUES ("Management");
-
-INSERT INTO department (dept_name)
-VALUES ("Staff");
-
-
-SELECT employee.id, employee.first_name, employee.last_name, employee.manager_id, employee_role.title, employee_role.salary, employee_role.dept_id
-FROM employee 
-INNER JOIN employee_role 
-ON employee.role_id = employee_role.id;
 
 

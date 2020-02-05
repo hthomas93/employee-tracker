@@ -11,8 +11,8 @@ const connection = mysql.createConnection({
     password: process.env.DB_PASSWORD
 })
 
-var roles = [];
-var employees = [];
+var roles = ["Boss"];
+var employees = ["Robert Frost"];
 var departments = ["Management", "Staff"];
 
 connection.connect(function (err) {
@@ -94,7 +94,7 @@ function add() {
                     ])
                     .then(function (answer) {
                         roles.push(answer.roletitle);
-                        var query = connection.query("INSERT INTO employee_role (title, salary, dept_id) VALUES (?, ?, ?)", [answer.roletitle, answer.salaryset, answer.dept],
+                        connection.query("INSERT INTO employee_role (title, salary, dept_id) VALUES (?, ?, ?)", [answer.roletitle, answer.salaryset, answer.dept],
                             function (err) {
                                 if (err) throw err;
                                 console.log("New role added");
@@ -118,22 +118,28 @@ function add() {
                         },
                         {
                             name: "role",
-                            type: "list",
-                            message: "What is the employee's role?",
-                            choices: roles
+                            type: "prompt",
+                            message: "What is the employee's role ID?",
                         },
                         {
-                            name: "manager",
+                            name: "manager_id",
                             type: "prompt",
-                            message: "Who is the employee's manager?"
+                            message: "What is the ID of the employee's manager?"
                         }
                     ])
                     .then(function (response) {
-                        let name = "";
-                        let fullname = name.concat(response.first + " " + response.last);
-                        employees.push(fullname);
-                        console.log(fullname);
-                        start();
+                        connection.query("INSERT INTO employee SET ?",
+                            {
+                                first_name: response.first,
+                                last_name: response.last,
+                                role_id: response.role,
+                                manager_id: response.manager_id
+                            },
+                            function (err) {
+                                if (err) throw err;
+                                console.log(`New employee ${response.first} ${response.last} was created successfully!`);
+                                start();
+                            })
                     })
             }
         })
@@ -174,26 +180,21 @@ function update() {
                     message: "Which employee roles would you like to update?",
                     choices: roles
                 })
-                .then(function () {
-                    inquirer
-                        .prompt({
-                            type: "input",
-                            name: "title",
-                            message: "What name would you like to change the role to?"
+                .then(function (data) {
+                    console.log("data choices: " + data.currID);
+                    console.log(data.toUpdate);
+                    const newTitle = data.toUpdate
+                    const currID = data.currID
+                    connection.query('UPDATE employee SET ? WHERE ?',
+                        [
+                            { title: newTitle },
+                            { id: currID }
+                        ],
+                        function (err) {
+                            if (err) throw err;
+                            console.log(`New employee Role #${data.toUpdate} was created successfully!`);
+                            start();
                         })
-                        .then(data => {
-                            console.log("Updating" + data.toUpdate + "role...\n");
-                            connection.query(
-                                "UPDATE employee_role SET title WHERE (?)", data.title,
-                                function (err, res) {
-                                    if (err) throw err;
-                                    console.log("role updated!\n")
-                                    connection.query("SELECT * FROM roles", function (err, db_data) {
-                                        console.table(db_data)
-                                        updateInfo()
-                                    })
-                                })
-                        });
 
                 });
         })
@@ -227,6 +228,7 @@ function getAllEmployees() {
     connection.query(query, function (err, res) {
         if (err) throw err;
         console.table(res);
+        start();
     })
 }
 
@@ -235,6 +237,7 @@ function getRoles() {
     connection.query(query, function (err, res) {
         if (err) throw err;
         console.table(res);
+        start();
     })
 }
 
@@ -242,5 +245,7 @@ function getDepartments() {
     var query = `SELECT * FROM department`;
     connection.query(query, function (err, res) {
         if (err) throw err;
+        console.table(res);
+        start();
     })
 }
